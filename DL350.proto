@@ -1,0 +1,102 @@
+#設定
+        Terminator = CR LF;
+        Terminator = LF;
+        ReadTimeout = 100;
+        WriteTimeout = 100;
+        PollPeriod = 100;
+        ReplyTimeout = 1000;
+        LockTimeout = 5000;
+        ExtraInput = Ignore;
+
+word{
+        out ":WAVEFORM:FORMAT WORD";
+}
+
+trigermode{
+        out ":TRIGger:MODE ONSTart";
+}
+
+end{
+     out ":WAVEFORM:END %(\$1)s";
+}
+
+waveformsend{
+        out ":WAVeform:TRACe \$1,\$2;:WAVeform:SEND?";
+        in "%#2r"; 
+}
+
+recordlength{
+        out ":ACQUIRE:RLENGTH %(\$1)s";
+}
+
+samplerate{
+        out ":TIMEBASE:SRATE %(\$1)d";
+}
+
+tdivset{
+        out ":TIMEBASE:TDIV %(\$1)s";
+}
+
+vdivset{
+       out ":CHANnel\$1:VOLTage:SCHannel\$2:VDIV %(\$3)s";
+}
+
+start{
+        out ":START";
+}
+
+stop{
+        out ":STOP";
+}
+
+#get
+
+        getlength{
+                out ":ACQUIRE:RLENGTH?";
+                in "%39c";
+        }
+
+        gettracelength{
+                out ":WAVEFORM:LENGTH?";
+                in "%39c";
+        }
+
+        getsamplerate{
+                out ":TIMEBASE:SRATE?";
+                in "%39c";
+        }
+
+        getoffset{
+                out ":WAVEFORM:OFFSET?";
+                in "%39c";
+        }
+
+        getvdiv{
+                out ":CHANnel\$1:VOLTage:SCHannel\$2:VDIV?";
+                in "%39c";
+        }
+
+        gettdiv{
+                out ":TIMEBASE:TDIV?";
+                in "%39c";
+        }
+
+        getend{
+        out ":WAVEFORM:END?";
+        in "%39c";
+        }
+
+        getrange{
+                out ":WAVeform:TRACe \$1,\$2;:WAVeform:RANGe?";
+                in "%39c"; 
+        }
+
+
+        #channelset{
+        #       out ":CHANnel%(\$1)d:VOLTage:SCHannel%(\$2)d:DISPlay %(\$3)d";
+        #}
+
+        #traceset{
+        #       out ":WAVeform:TRACe %(\$1)d,%(\$2)d";
+        #       in "%39c";
+        #}
