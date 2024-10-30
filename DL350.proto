@@ -49,6 +49,16 @@ stop{
         out ":STOP";
 }
 
+valueoffset{
+        out ":WAVeform:TRACe \$1,\$2;:WAVEFORM:OFFSET?";
+        in ":WAV:OFFS %e";
+}
+
+valuerange{
+        out ":WAVeform:TRACe \$1,\$2;:WAVeform:RANGe?";
+        in ":WAV:RANG %e"; 
+}
+
 #get
 
         getlength{
@@ -66,8 +76,8 @@ stop{
                 in "%39c";
         }
 
-        getoffset{
-                out ":WAVEFORM:OFFSET?";
+       getoffset{
+                out ":WAVeform:TRACe \$1,\$2;:WAVEFORM:OFFSET?";
                 in "%39c";
         }
 
