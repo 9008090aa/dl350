@@ -6,8 +6,7 @@
         PollPeriod = 100;
         ReplyTimeout = 1000;
         LockTimeout = 5000;
-        ExtraInput = Ignore;
-
+        ExtraInput = Ignore; 
 word{
         out ":WAVEFORM:FORMAT WORD";
 }
@@ -22,8 +21,9 @@ end{
 
 waveformsend{
         out ":WAVeform:TRACe \$1,\$2;:WAVeform:SEND?";
-        in "%#2r"; 
+        in  "#%(\$3)d\_%#2r";
 }
+
 
 recordlength{
         out ":ACQUIRE:RLENGTH %(\$1)s";
@@ -59,6 +59,10 @@ valuerange{
         in ":WAV:RANG %e"; 
 }
 
+valuetracelength{
+                out ":WAVeform:TRACe \$1,\$2;:WAVEFORM:LENGTH?";
+                in ":WAV:LENG %d";
+        }
 #get
 
         getlength{
@@ -76,7 +80,7 @@ valuerange{
                 in "%39c";
         }
 
-       getoffset{
+        getoffset{
                 out ":WAVeform:TRACe \$1,\$2;:WAVEFORM:OFFSET?";
                 in "%39c";
         }
@@ -92,8 +96,8 @@ valuerange{
         }
 
         getend{
-        out ":WAVEFORM:END?";
-        in "%39c";
+                out ":WAVEFORM:END?";
+                in "%39c";
         }
 
         getrange{
