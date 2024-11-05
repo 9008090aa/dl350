@@ -13,7 +13,7 @@ record(stringin, "$(dev):trigermode") #トリガーモードを即時スター�
 	field(PINI, "YES") #IOC起動時に自動で処理
 }
 
-record(stringin, "$(dev):end")#送信データ数の変更(デバック用)
+record(stringin, "$(dev):end")#送信データ数の変更
 {	
 	field(DTYP, "stream")
 	field(VAL, 100000000) 
@@ -25,45 +25,43 @@ record(stringin, "$(dev):end")#送信データ数の変更(デバック用)
 record(waveform, "$(dev):send11") #波形データを送信 添え字はチャンネルを示す
 {
 	field(DTYP, "stream")
-	field(INP, "@DL350.proto waveformsend(1,1) $(dev)")
+	field(INP, "@DL350.proto waveformsend(1,1,$(dev):calcbyte11) $(dev)")
 	field(FTVL, "SHORT")    		# データタイプ（16bit符号付き整数）
-    	field(NELM, "1000000")   		# 配列の長さ
-	field(PROC, "0") 			# PROC対応（PROC 1でレコード処理）
+    field(NELM, "10")   			# 配列の長さ
 	field(SCAN, "Passive") 			
-	field(FLNK, "$(dev):send12")		#次のチャンネルの波形データを送信
-	field(PINI, "YES")			#デバック用
+	field(FLNK, "$(dev):valuerange11")	#次のチャンネルの波形データを送信
 }
 
 	record(waveform, "$(dev):send12")
 	{
 		field(DTYP, "stream")
-		field(INP, "@DL350.proto waveformsend(1,2) $(dev)")
+		field(INP, "@DL350.proto waveformsend(1,2,$(dev):calcbyte12) $(dev)")
 		field(FTVL, "SHORT")   
-    	field(NELM, "1000000")   
+    	field(NELM, "10")   
 		field(SCAN, "Passive") 
-		field(FLNK, "$(dev):send21")
+		field(FLNK, "$(dev):valuerange12")
 	}
 
 	record(waveform, "$(dev):send21")
 	{
 		field(DTYP, "stream")
-		field(INP, "@DL350.proto waveformsend(2,1) $(dev)")
+		field(INP, "@DL350.proto waveformsend(2,1,$(dev):calcbyte21) $(dev)")
 		field(FTVL, "SHORT")   
     	field(NELM, "1000000")
 		field(SCAN, "Passive") 
-		field(FLNK, "$(dev):send22")
+		field(FLNK, "$(dev):valuerange21")
 	}
 
 	record(waveform, "$(dev):send22")
 	{
 		field(DTYP, "stream")
-		field(INP, "@DL350.proto waveformsend(2,2) $(dev)")
+		field(INP, "@DL350.proto waveformsend(2,2,$(dev):calcbyte22) $(dev)")
 		field(FTVL, "SHORT")   
     	field(NELM, "1000000")
 		field(SCAN, "Passive")
-		field(FLNK, "$(dev):subarray11")
+		field(FLNK, "$(dev):valuerange22")
 	}
-
+ 
 record(stringin, "$(dev):leng") #レコード長の変更
 {
 	field(DTYP, "stream")
@@ -104,8 +102,7 @@ record(stringin, "$(dev):vdiv11")#縦軸メモリ設定の変更
 	{
 		field(DTYP, "stream")
 		field(VAL, 1)
-		field(INP, "@DL350.proto vdivset(1,2,VAL) $(dev)")
-		field(PROC, "0")
+		field(INP, "@DL350.proto vdivset(1,2,VAL) $(dev)") 
 		field(SCAN, "Passive")
 		field(PINI, "YES")
 	}
@@ -115,7 +112,6 @@ record(stringin, "$(dev):vdiv11")#縦軸メモリ設定の変更
 		field(DTYP, "stream")
 		field(VAL, 1)
 		field(INP, "@DL350.proto vdivset(2,1,VAL) $(dev)") 
-		field(PROC, "0")
 		field(SCAN, "Passive")
 		field(PINI, "YES")
 	}
@@ -124,8 +120,7 @@ record(stringin, "$(dev):vdiv11")#縦軸メモリ設定の変更
 	{
 		field(DTYP, "stream")
 		field(VAL, 1)
-		field(INP, "@DL350.proto vdivset(2,2,VAL) $(dev)")
-		field(PROC, "0")
+		field(INP, "@DL350.proto vdivset(2,2,VAL) $(dev)") 
 		field(SCAN, "Passive")
 		field(PINI, "YES")
 	}
@@ -151,19 +146,35 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 	record(waveform, "$(dev):value11") #波形データを送信
 	{
 		field(FTVL, "DOUBLE")     
-		field(NELM, "1000000")      
+		field(NELM, "10")      
 		field(SCAN, "Passive")
-		field(FLNK, "$(dev):subarray12")
+		field(FLNK, "$(dev):valuetracelength12")
 	}
 	
-		record(subArray, "$(dev):subarray11")
-		{       
-			field(INP, "DL350:send11") 		
+		record(ai, "$(dev):valuetracelength11")
+		{
+			field(DTYP, "stream")
+			field(INP, "@DL350.proto valuetracelength(1,1) $(dev)")
 			field(SCAN, "Passive")
-			field(MALM, "1000000")
-			field(NELM, "1000000")                
-			field(INDX, "3")
-			field(FLNK, "$(dev):valuerange11")                
+			field(PROC, "0")
+			field(FLNK, "$(dev):digitCount11")
+		}
+
+		record(calc, "$(dev):digitCount11") 
+		{
+			field(INPA, "$(dev):valuetracelength11")
+			field(CALC, "1 + floor(log(A*2))")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):calcbyte11")
+		}
+
+		record(calc, "$(dev):calcbyte11")
+		{
+			field(INPA, "$(dev):valuetracelength11")
+			field(INPB, "$(dev):digitCount11")
+			field(CALC, "(A*2)+(B*10**B)")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):send11")
 		}
 
 		record(ai, "$(dev):valuerange11") 
@@ -171,7 +182,6 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 			field(DTYP, "stream")
 			field(INP, "@DL350.proto valuerange(1,1) $(dev)")
 			field(SCAN, "Passive")
-			field(PINI, "YES")
 			field(FLNK, "$(dev):valueoffset11")
 		}
 
@@ -179,19 +189,18 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 		{
 			field(DTYP, "stream")
 			field(INP, "@DL350.proto valueoffset(1,1) $(dev)")
-			field(PINI, "YES") 		
 			field(SCAN, "Passive")
 			field(FLNK, "$(dev):acalcout11")
 		}
 
 		record(acalcout, "$(dev):acalcout11") 
 		{
-			field(INAA, "$(dev):subarray11")
+			field(INAA, "$(dev):send11")
 			field(INPB, "$(dev):valuerange11")
 			field(INPC, "$(dev):valueoffset11")
 			field(CALC, "C+AA*B/2400")       	
 			field(OUT, "DL350:value11")        
-			field(NELM, "1000000")
+			field(NELM, "10")
 			field(SCAN, "Passive")
 			field(FLNK, "$(dev):value11")         				          	
 		}
@@ -201,16 +210,32 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 		field(FTVL, "DOUBLE")     
 		field(NELM, "1000000")      
 		field(SCAN, "Passive")
-		field(FLNK, "$(dev):subarray21")
+		field(FLNK, "$(dev):valuetracelength21")
 	}
-		record(subArray, "$(dev):subarray12")
-		{       
-			field(INP, "DL350:send12") 		
+		
+		record(ai, "$(dev):valuetracelength12")
+		{
+			field(DTYP, "stream")
+			field(INP, "@DL350.proto valuetracelength(1,2) $(dev)")
 			field(SCAN, "Passive")
-			field(MALM, "1000000")
-			field(NELM, "1000000")                
-			field(INDX, "3")
-			field(FLNK, "$(dev):valuerange12")                
+			field(FLNK, "$(dev):digitCount12")
+		}
+
+		record(calc, "$(dev):digitCount12") 
+		{
+			field(INPA, "$(dev):valuetracelength12")
+			field(CALC, "1 + floor(log(A*2))")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):calcbyte12")
+		}
+
+		record(calc, "$(dev):calcbyte12")
+		{
+			field(INPA, "$(dev):valuetracelength12")
+			field(INPB, "$(dev):digitCount12")
+			field(CALC, "(A*2)+(B*10**B)")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):send12")
 		}
 
 		record(ai, "$(dev):valuerange12") 
@@ -233,32 +258,47 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 
 		record(acalcout, "$(dev):acalcout12") 
 		{
-			field(INAA, "$(dev):subarray12")
+			field(INAA, "$(dev):send12")
 			field(INPB, "$(dev):valuerange12")
 			field(INPC, "$(dev):valueoffset12")
 			field(CALC, "C+AA*B/2400")       	
 			field(OUT, "DL350:value12")        
-			field(NELM, "1000000")
+			field(NELM, "10")
 			field(SCAN, "Passive")
 			field(FLNK, "$(dev):value12")         				          	
 		}
 
 	record(waveform, "$(dev):value21") #波形データを送信
 	{
-			field(FTVL, "DOUBLE")     
-			field(NELM, "1000000")      
-			field(SCAN, "Passive")
-			field(FLNK, "$(dev):subarray22")
+		field(FTVL, "DOUBLE")     
+		field(NELM, "1000000")      
+		field(SCAN, "Passive")
+		field(FLNK, "$(dev):valuetracelength22")
 	}
-
-		record(subArray, "$(dev):subarray21")
-		{       
-			field(INP, "DL350:send21") 		
+		
+		record(ai, "$(dev):valuetracelength21")
+		{
+			field(DTYP, "stream")
+			field(INP, "@DL350.proto valuetracelength(2,1) $(dev)")
 			field(SCAN, "Passive")
-			field(MALM, "1000000")
-			field(NELM, "1000000")                
-			field(INDX, "3")
-			field(FLNK, "$(dev):valuerange21")                
+			field(FLNK, "$(dev):digitCount21")
+		}
+
+		record(calc, "$(dev):digitCount21") 
+		{
+			field(INPA, "$(dev):valuetracelength21")
+			field(CALC, "1 + floor(log(A*2))")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):calcbyte21")
+		}
+
+		record(calc, "$(dev):calcbyte21")
+		{
+			field(INPA, "$(dev):valuetracelength21")
+			field(INPB, "$(dev):digitCount21")
+			field(CALC, "(A*2)+(B*10**B)")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):send21")
 		}
 
 		record(ai, "$(dev):valuerange21") 
@@ -281,7 +321,7 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 
 		record(acalcout, "$(dev):acalcout21") 
 		{
-			field(INAA, "$(dev):subarray21")
+			field(INAA, "$(dev):send21")
 			field(INPB, "$(dev):valuerange21")
 			field(INPC, "$(dev):valueoffset21")
 			field(CALC, "C+AA*B/2400")       	
@@ -297,14 +337,30 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 		field(NELM, "1000000")      
 		field(SCAN, "Passive")
 	}
-		record(subArray, "$(dev):subarray22")
-		{       
-			field(INP, "DL350:send22") 		
+		
+		record(ai, "$(dev):valuetracelength22")
+		{
+			field(DTYP, "stream")
+			field(INP, "@DL350.proto valuetracelength(2,2) $(dev)")
 			field(SCAN, "Passive")
-			field(MALM, "1000000")
-			field(NELM, "1000000")                
-			field(INDX, "3")
-			field(FLNK, "$(dev):valuerange22")                
+			field(FLNK, "$(dev):digitCount22")
+		}
+
+		record(calc, "$(dev):digitCount22") 
+		{
+			field(INPA, "$(dev):valuetracelength22")
+			field(CALC, "1 + floor(log(A*2))")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):calcbyte22")
+		}
+
+		record(calc, "$(dev):calcbyte22")
+		{
+			field(INPA, "$(dev):valuetracelength22")
+			field(INPB, "$(dev):digitCount22")
+			field(CALC, "(A*2)+(B*10**B)")
+			field(SCAN, "Passive")
+			field(FLNK, "$(dev):send22")
 		}
 
 		record(ai, "$(dev):valuerange22") 
@@ -312,7 +368,6 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 			field(DTYP, "stream")
 			field(INP, "@DL350.proto valuerange(2,2) $(dev)")
 			field(SCAN, "Passive")
-			field(PINI, "YES")
 			field(FLNK, "$(dev):valueoffset22")
 		}
 
@@ -327,7 +382,7 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 
 		record(acalcout, "$(dev):acalcout22") 
 		{
-			field(INAA, "$(dev):subarray22")
+			field(INAA, "$(dev):send22")
 			field(INPB, "$(dev):valuerange22")
 			field(INPC, "$(dev):valueoffset22")
 			field(CALC, "C+AA*B/2400")       	
@@ -375,7 +430,7 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 		field(PINI, "YES") 		
 		field(SCAN, "Passive") 
 		field(FLNK, "$(dev):gleng")	
-		field(PROC, "0") #getコマンドをまとめてOPIで処理できるように
+		field(PROC, "0")
 	}
 
 	record(stringin, "$(dev):gleng") #
@@ -447,6 +502,7 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 			field(INP, "@DL350.proto getvdiv(2,2) $(dev)")
 			field(SCAN, "Passive")
 			field(PINI, "YES")
+			field(FLNK, "$(dev):grange11")
 		}
 
 	record(stringin, "$(dev):grange11") 
@@ -486,29 +542,3 @@ record(stringin, "$(dev):stop")#波形取り込みストップ
 		}
 
 #使わないレコード収納
-	#record(stringin, "$(dev):chan")#表示するチャンネルの変更
-	#{
-	#	field(INP, "@DL350.proto channelset(arg:1, arg:2, arg:3) $(dev)") #arg1はチャンネル1から4、arg2はチャンネル1,2、arg3はon(1)/off(0)の設定
-	#	field(PROC, "0")
-	#	field(SCAN, "Passive")
-	#}
-	#	record(stringin, "arg:1")#channnelsetの引数x=1から4
-	#	{
-	#		field(VAL, 1)
-	#	}
-	#	record(stringin, "arg:2")#channnelsetの引数x=1,2
-	#	{
-	#		field(VAL, 2)
-	#	}
-	#	record(stringin, "arg:3")#channelsetの引数x=0,1
-	#	{
-	#		field(VAL, 0)
-	#	}
-
-	#record(stringin, "$(dev):trac")#トレース設定の変更
-	#{
-	#	field(DTYP, "stream")
-	#	field(INP, "@DL350.proto traceset(arg:4, arg:5) $(dev)") #arg4はチャンネル1から4、arg2はチャンネル1,2、
-	#	field(PROC, "0")
-	#	field(SCAN, "Passive")
-	#}
